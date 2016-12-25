@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <vector>
+
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/optional.hpp>
 
