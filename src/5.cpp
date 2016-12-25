@@ -1,9 +1,10 @@
-#include <openssl/md5.h>
-#include <iostream>
-#include <array>
 #include <algorithm>
-#include <range/v3/all.hpp>
+#include <array>
+#include <iostream>
+
 #include <boost/optional.hpp>
+#include <openssl/md5.h>
+#include <range/v3/all.hpp>
 
 using namespace ranges::v3;
 using Digest = std::array<unsigned char, 16>;
