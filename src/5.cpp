@@ -2,8 +2,9 @@
 #include <iostream>
 #include <array>
 #include <algorithm>
-#include <range/v3/view.hpp>
+#include <range/v3/all.hpp>
 
+using namespace ranges::v3;
 using Digest = std::array<unsigned char, 16>;
 
 bool isValidHash(const Digest &digest) {
@@ -20,37 +21,20 @@ Digest generateHash(const std::string &input, unsigned index) {
 
 int hashToChar(const Digest &d) { return d[2] & 0x0F; }
 
-struct HashFinder {
-  HashFinder(const std::string &input) : input_(input) {}
-  Digest nextHash() {
-    Digest digest;
-    for (;;) {
-      digest = generateHash(input_, index++);
-      if (isValidHash(digest)) {
-        break;
-      }
-    }
-    return digest;
-  }
-
-private:
-  std::string input_;
-  unsigned index = 0;
-};
-
 int main(int argc, char **argv) {
   if (argc <= 1) {
     std::cerr << "Provide puzzle input on command line." << std::endl;
     return 1;
   }
 
-  HashFinder hf(argv[1]);
-  std::array<int, 8> password;
-  std::generate(password.begin(), password.end(),
-                [&hf]() { return hashToChar(hf.nextHash()); });
-  std::for_each(password.begin(), password.end(),
-                [](auto c) { std::cout << std::hex << c; });
+  std::string input(argv[1]);
+  auto password =
+      view::ints(0) |
+      view::transform([&input](int i) { return generateHash(input, i); }) |
+      view::remove_if([](const Digest &d) { return !isValidHash(d); }) |
+      view::transform([](const Digest &d) { return hashToChar(d); }) |
+      view::take(8);
+  ranges::for_each(password, [](auto c) { std::cout << std::hex << c; });
   std::cout << "\n";
-
   return 0;
 }
