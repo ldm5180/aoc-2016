@@ -19,7 +19,7 @@ Histogram HistogramFactory(const std::string &s) {
   char c = 0;
   std::generate(h.begin(), h.end(), [&c]() { return Frequency{c++, 0}; });
   std::for_each(s.begin(), s.end(), [&h](auto c) { ++h[c].num; });
-  h['-'].num = 0;
+  h['-'].num = 0; // '-' is ignored as a character for counting.
   return h;
 }
 
@@ -32,6 +32,23 @@ Checksum ChecksumFactory(const Histogram &h) {
                                      return accum;
                                    });
   return check.substr(0, 5);
+}
+
+std::string decrypt(const std::string &enc, int rotate) {
+  std::string dec;
+  std::transform(enc.begin(), enc.end(), std::back_inserter(dec),
+                 [rotate](auto c) {
+                   if (c == '-') {
+                     return ' ';
+                   }
+                   c = std::toupper(c);
+                   c += rotate % 26;
+                   if (c > 'Z') {
+                     c -= 26;
+                   }
+                   return c;
+                 });
+  return dec;
 }
 
 int main(int argc, char **argv) {
@@ -66,7 +83,9 @@ int main(int argc, char **argv) {
     });
     auto check = ChecksumFactory(hist);
     if (check == checksum) {
-      sectorSum += boost::lexical_cast<int>(sectorStr);
+      auto sector = boost::lexical_cast<int>(sectorStr);
+      sectorSum += sector;
+      std::cout << decrypt(enc, sector) << " " << sector << "\n";
     }
   }
 
