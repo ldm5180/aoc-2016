@@ -28,7 +28,7 @@ template <typename T> char mostCommonLastChar(T &lines) {
     line.pop_back();
   });
   return std::distance(histogram.begin(),
-                       std::max_element(histogram.begin(), histogram.end())) +
+                       std::min_element(histogram.begin(), histogram.end())) +
          'a';
 }
 
