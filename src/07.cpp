@@ -34,8 +34,7 @@ bool isIpv7Tls(const std::string &line) {
   std::regex abba("(.)(?!\1)(.)\\2\\1");
   auto isBracket = [](auto c) { return c == '[' || c == ']'; };
   if (!matchList(abba, yield_from(view::split(line, isBracket) | view::drop(1) |
-                                  view::stride(2) | view::join('|')))
-           .empty()) {
+                                  view::stride(2) | view::join('|'))).empty()) {
     return false; // any hypernet match is a disqualification.
   }
 

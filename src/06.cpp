@@ -35,8 +35,8 @@ template <typename T> char mostCommonLastChar(T &lines) {
 std::string repeatedMsg(std::vector<std::string> lines) {
   std::string mostCommon(lines.front().size(), '\0');
   auto linesRange = view::all(lines) | view::remove_if([](const auto &line) {
-                      return line.empty();
-                    });
+    return line.empty();
+  });
   std::generate(mostCommon.rbegin(), mostCommon.rend(),
                 [&linesRange]() { return mostCommonLastChar(linesRange); });
   return mostCommon;
