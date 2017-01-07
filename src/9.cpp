@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
 
 class Decompressor {
 public:
-  std::size_t outputSize(const std::vector<std::string> &lines);
-  std::size_t lengthSimple(const std::string &line);
+  std::size_t fullLength(const std::string &line);
 };
 
 struct Marker {
@@ -20,6 +20,7 @@ struct Marker {
 struct Expander {
   std::size_t length;
   std::size_t repeat;
+  std::string expansionStr;
   std::size_t expandedLength() const { return length * repeat; }
 };
 
@@ -30,6 +31,7 @@ Expander expanderFactory(const std::string &line, Marker m) {
       line.substr(m.start + 1, x - (m.start + 1)));
   e.repeat =
       boost::lexical_cast<std::size_t>(line.substr(x + 1, m.stop - (x + 1)));
+  e.expansionStr = line.substr(m.stop + 1, e.length);
   return e;
 }
 
@@ -43,32 +45,28 @@ Marker nextExpansion(const std::string &line, const std::size_t startLoc) {
   return m;
 }
 
-std::size_t Decompressor::outputSize(const std::vector<std::string> &lines) {
-  return std::accumulate(lines.begin(), lines.end(), 0U,
-                         [this](const unsigned accum, const auto &line) {
-                           return accum + lengthSimple(line);
-                         });
-}
-
-std::size_t Decompressor::lengthSimple(const std::string &line) {
+std::size_t Decompressor::fullLength(const std::string &line) {
   std::size_t length = 0;
   std::size_t cursor = 0;
   for (auto m = nextExpansion(line, cursor);
        m.start != std::string::npos && m.stop != std::string::npos;
        m = nextExpansion(line, cursor)) {
     Expander ex = expanderFactory(line, m);
-    length += (m.start - cursor) + ex.expandedLength();
+    length += (m.start - cursor);
+    auto expandedLen = fullLength(ex.expansionStr);
+    length += expandedLen * ex.repeat;
     cursor = (m.stop + 1) + ex.length;
   }
   return length + (line.size() - cursor);
 }
 
-std::vector<std::string> readFile(const std::string &fn) {
-  std::vector<std::string> res;
+std::string readFile(const std::string &fn) {
+  std::string res;
   std::ifstream file(fn);
   std::string line;
   while (std::getline(file, line)) {
-    res.push_back(line);
+    boost::trim(line);
+    res += line;
   }
   return res;
 }
@@ -80,6 +78,6 @@ int main(int argc, char **argv) {
   }
   auto lines = readFile(argv[1]);
   Decompressor d;
-  auto length = d.outputSize(lines);
+  auto length = d.fullLength(lines);
   std::cout << length << "\n";
 };
