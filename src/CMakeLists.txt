@@ -9,6 +9,7 @@ add_executable (06 06.cpp)
 add_executable (07 07.cpp)
 add_executable (08 08.cpp)
 add_executable (09 09.cpp)
+add_executable (10 10.cpp)
 
 # Link the executable to the Reverse library. Since the Reverse library has
 # public include directories we will use those link directories when building.
