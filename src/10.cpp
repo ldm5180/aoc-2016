@@ -110,8 +110,12 @@ public:
     }
   }
 
-  // This can be wrong if the token has gone to output.
-  int ownerOf(int token) const { return tokens_.at(token).owner(); }
+  int valueOfOutput(int output) {
+    auto p =
+        std::find_if(output_.begin(), output_.end(),
+                     [output](const auto &o) { return o.first == output; });
+    return p->second;
+  }
 
 private:
   void updateOwner(const boost::optional<int> &dest, bool destIsOutput,
@@ -174,5 +178,8 @@ int main(int argc, char **argv) {
   auto f = Factory();
   f.processInstructions(lines);
   f.run(17, 61);
+  std::cout << "output 0: " << f.valueOfOutput(0) << "\n";
+  std::cout << "output 1: " << f.valueOfOutput(1) << "\n";
+  std::cout << "output 2: " << f.valueOfOutput(2) << "\n";
   return 0;
 }
